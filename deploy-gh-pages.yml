@@ -1,40 +1,154 @@
-在使用 peaceiris/actions-gh-pages@v3 部署到 gh-pages 分支且 Actions 状态显示成功后，网站出现 404 错误的最可能原因有两个：
+name: Deploy to GitHub Pages (gh-pages branch)
 
-1. **`index.html` 文件缺失或路径错误**  
-   GitHub Pages 默认将根目录的 `index.html` 作为首页。如果新替换的内容中没有正确提交根目录下的 `index.html` 文件，或者该文件命名错误（比如叫 `home.html`），访问根网址时就会返回 404。或者如果部署目录结构变了，导致首页文件位置不对，也会出现此问题。
+on:
+  push:
+    branches:
+      - main  # 监听 main 分支的推送
 
-2. **缓存或分支切换延迟 / GitHub Pages 配置问题**  
-   尽管 Actions 显示成功，GitHub Pages 可能还没有立即刷新最新内容，或者分支设置错误（比如未正确指向 `gh-pages` 分支作为 Pages 来源）。另外，浏览器缓存或 GitHub Pages 缓存未清理导致访问旧内容，从而出现 404。
+permissions:
+  contents: write  # 写入仓库权限，用于创建 gh-pages 分支
 
-***
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-### 解决方案
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    # 不再创建 dist 目录，直接在根目录创建 index.html
+    - name: Create index.html (Final Sales Page - Root Directory)
+      run: |
+        # 使用 cat/EOF 稳健写入 HTML 内容
+        cat <<'EOF' > index.html
+        <!DOCTYPE html>
+        <html lang="zh">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>AI 时代合同模板：保护您的未来</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+            body {
+              font-family: 'Inter', sans-serif;
+            }
+          </style>
+        </head>
+        <body class="bg-gray-50 min-h-screen p-4 sm:p-8">
+        
+          <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden">
+            
+            <!-- 头部和价格 -->
+            <header class="bg-indigo-600 text-white p-6 sm:p-10 text-center">
+              <h1 class="text-3xl sm:text-5xl font-extrabold mb-2">
+                AI 时代合同模板
+              </h1>
+              <p class="text-indigo-200 text-xl sm:text-2xl font-light">
+                保护您的知识产权和项目免受新兴 AI 风险
+              </p>
+              <div class="mt-6">
+                <span class="text-5xl sm:text-6xl font-black block leading-none">
+                  $9.99
+                </span>
+                <span class="text-sm uppercase tracking-widest text-indigo-300">
+                  限时特惠，一次购买，永久使用
+                </span>
+              </div>
+            </header>
+        
+            <!-- 核心价值点 -->
+            <main class="p-6 sm:p-10 space-y-10">
+              
+              <section>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                  为什么您需要这份模板？
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  
+                  <div class="p-4 bg-red-50 rounded-lg shadow-sm">
+                    <div class="text-red-600 text-3xl mb-2">🤖</div>
+                    <h3 class="font-semibold text-gray-700">AI 知识产权风险覆盖</h3>
+                    <p class="text-sm text-gray-500 mt-1">明确界定 AI 生成内容的所有权归属和使用范围，避免版权纠纷。</p>
+                  </div>
+                  
+                  <div class="p-4 bg-blue-50 rounded-lg shadow-sm">
+                    <div class="text-blue-600 text-3xl mb-2">🛡️</div>
+                    <h3 class="font-semibold text-gray-700">数据隐私与安全保障</h3>
+                    <p class="text-sm text-gray-500 mt-1">针对 AI 训练数据和敏感信息使用设置严格条款，保障客户数据安全。</p>
+                  </div>
+        
+                  <div class="p-4 bg-green-50 rounded-lg shadow-sm">
+                    <div class="text-green-600 text-3xl mb-2">⚖️</div>
+                    <h3 class="font-semibold text-gray-700">最新的法律合规性</h3>
+                    <p class="text-sm text-gray-500 mt-1">由专业法律团队审阅，确保合同模板符合最新的科技法律法规。</p>
+                  </div>
+        
+                </div>
+              </section>
+        
+              <!-- CTA 行动召唤 -->
+              <section class="text-center py-6 bg-yellow-50 rounded-xl border-4 border-dashed border-yellow-300">
+                <p class="text-xl font-semibold text-gray-800 mb-4">
+                  不要让您的下一个项目裸奔于 AI 风险之下。
+                </p>
+                <a id="buy-now" href="#" 
+                   class="inline-block px-8 py-4 text-xl font-bold rounded-full 
+                          bg-yellow-500 text-white 
+                          hover:bg-yellow-600 transition duration-300 
+                          shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                   onclick="alert('购买功能待接入，请联系 estebancreate@email.com'); return false;">
+                  立即购买：只需 $9.99 (点击此处)
+                </a>
+                <p class="text-xs text-gray-500 mt-3">
+                  （购买链接将指导您完成微信/支付宝支付）
+                </p>
+              </section>
+        
+              <!-- 模板详情 -->
+              <section>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-2">
+                  模板包含内容
+                </h2>
+                <ul class="space-y-3 text-gray-700">
+                  <li class="flex items-center">
+                    <svg class="w-5 h-5 text-indigo-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    可编辑的 Word/PDF 版本。
+                  </li>
+                  <li class="flex items-center">
+                    <svg class="w-5 h-5 text-indigo-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    AI 免责与责任划分条款。
+                  </li>
+                  <li class="flex items-center">
+                    <svg class="w-5 h-5 text-indigo-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    保密协议 (NDA) 强化条款。
+                  </li>
+                  <li class="flex items-center">
+                    <svg class="w-5 h-5 text-indigo-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    详细使用指南与风险说明。
+                  </li>
+                </ul>
+              </section>
+        
+            </main>
+        
+            <!-- 页脚 -->
+            <footer class="bg-gray-100 p-4 text-center text-sm text-gray-500">
+              © 2025 AI Contracts Pro. All Rights Reserved.
+            </footer>
+            
+          </div>
+        
+        </body>
+        </html>
+        EOF
 
-- **确认 `index.html` 文件存在且正确路径**：确保部署的 `gh-pages` 分支根目录中有有效的 `index.html` 文件，且文件名正确，不含大小写错误或者路径错误。
-
-- **确认 GitHub Pages 配置**：  
-  进入仓库的 GitHub 设置页面，检查 GitHub Pages 的配置，选择的分支应该是 `gh-pages`，且根目录（/）为发布目录。
-
-- **强制刷新 GitHub Pages**：  
-  1) 在仓库设置中，临时切换 GitHub Pages 分支至另一个分支（如 `main`），保存，等待数分钟。  
-  2) 切换回 `gh-pages` 分支，再次保存，强制 GitHub Pages 刷新部署。  
-  3) 清理浏览器缓存或者使用无痕模式访问。
-
-- **确认 Actions 工作流内容**：确保 `deploy-gh-pages.yml` 配置正确，内容替换不会删除 `index.html` 或错放路径，部署命令指向正确目录。
-
-按照以上步骤修改后，404 错误问题一般即可彻底解决。
-
-总结：最关键是确保 `gh-pages` 分支中的 `index.html` 文件存在且路径正确，以及 Pages 设置指向正确分支，辅以缓存刷新即可恢复正常访问.[2][3][4][7]
-
-Sources
-[1] How to Fix Error 404 File not Found GitHub Pages https://www.youtube.com/watch?v=D6_Io-Jg_DU
-[2] GitHub Pages部署后网站无法正常访问，提示404错误如何解决？ https://ask.csdn.net/questions/8376132
-[3] How to fix HTTP 404 on Github Pages? https://stackoverflow.com/questions/11577147/how-to-fix-http-404-on-github-pages
-[4] GitHub 部署后 404 错误的原因及解决方案 https://githubup.com/38152.html
-[5] Troubleshooting 404 errors for GitHub Pages sites https://docs.github.com/en/pages/getting-started-with-github-pages/troubleshooting-404-errors-for-github-pages-sites
-[6] 在GitHub页面上托管抛出404错误 https://cloud.tencent.cn/developer/information/%E5%9C%A8GitHub%E9%A1%B5%E9%9D%A2%E4%B8%8A%E6%89%98%E7%AE%A1%E6%8A%9B%E5%87%BA404%E9%94%99%E8%AF%AF
-[7] Github pages. 404 not found, and publish again after ... https://github.com/orgs/community/discussions/33172
-[8] 排查GitHub Pages 站点的404 错误 https://docs.github.com/zh/pages/getting-started-with-github-pages/troubleshooting-404-errors-for-github-pages-sites
-[9] Solución de errores 404 en sitios de GitHub Pages https://docs.github.com/es/enterprise-cloud@latest/pages/getting-started-with-github-pages/troubleshooting-404-errors-for-github-pages-sites
-[10] Github pages显示404未找到文件 https://cloud.tencent.com/developer/information/Github%20pages%E6%98%BE%E7%A4%BA404%E6%9C%AA%E6%89%BE%E5%88%B0%E6%96%87%E4%BB%B6
+    - name: Deploy to gh-pages branch
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: . # 关键更新：指向根目录
+        force_orphan: true # 强制清理 gh-pages 分支，确保没有旧文件残留
+        commit_message: 'Deploy final sales page content (Fixed 404 - Forced Root)'
 
