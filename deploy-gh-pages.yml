@@ -1,41 +1,40 @@
-name: Deploy to GitHub Pages (gh-pages branch)
+在使用 peaceiris/actions-gh-pages@v3 部署到 gh-pages 分支且 Actions 状态显示成功后，网站出现 404 错误的最可能原因有两个：
 
-on:
-  push:
-    branches:
-      - main  # 监听 main 分支的推送
+1. **`index.html` 文件缺失或路径错误**  
+   GitHub Pages 默认将根目录的 `index.html` 作为首页。如果新替换的内容中没有正确提交根目录下的 `index.html` 文件，或者该文件命名错误（比如叫 `home.html`），访问根网址时就会返回 404。或者如果部署目录结构变了，导致首页文件位置不对，也会出现此问题。
 
-permissions:
-  contents: write  # 写入仓库权限
+2. **缓存或分支切换延迟 / GitHub Pages 配置问题**  
+   尽管 Actions 显示成功，GitHub Pages 可能还没有立即刷新最新内容，或者分支设置错误（比如未正确指向 `gh-pages` 分支作为 Pages 来源）。另外，浏览器缓存或 GitHub Pages 缓存未清理导致访问旧内容，从而出现 404。
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+***
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+### 解决方案
 
-    - name: Create index.html
-      run: |
-        echo '<!DOCTYPE html>
-        <html lang="zh">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>AI 合同销售页</title>
-        </head>
-        <body style="text-align: center; padding-top: 50px;">
-          <h1>$9.99 AI 合同销售页 (占位符)</h1>
-          <p>内容已通过 GitHub Actions 成功部署！</p>
-        </body>
-        </html>' > index.html
+- **确认 `index.html` 文件存在且正确路径**：确保部署的 `gh-pages` 分支根目录中有有效的 `index.html` 文件，且文件名正确，不含大小写错误或者路径错误。
 
-    - name: Deploy to gh-pages branch
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_branch: gh-pages
-        publish_dir: .
-        force_orphan: true
-        commit_message: 'Deploy placeholder index.html to gh-pages branch'
+- **确认 GitHub Pages 配置**：  
+  进入仓库的 GitHub 设置页面，检查 GitHub Pages 的配置，选择的分支应该是 `gh-pages`，且根目录（/）为发布目录。
+
+- **强制刷新 GitHub Pages**：  
+  1) 在仓库设置中，临时切换 GitHub Pages 分支至另一个分支（如 `main`），保存，等待数分钟。  
+  2) 切换回 `gh-pages` 分支，再次保存，强制 GitHub Pages 刷新部署。  
+  3) 清理浏览器缓存或者使用无痕模式访问。
+
+- **确认 Actions 工作流内容**：确保 `deploy-gh-pages.yml` 配置正确，内容替换不会删除 `index.html` 或错放路径，部署命令指向正确目录。
+
+按照以上步骤修改后，404 错误问题一般即可彻底解决。
+
+总结：最关键是确保 `gh-pages` 分支中的 `index.html` 文件存在且路径正确，以及 Pages 设置指向正确分支，辅以缓存刷新即可恢复正常访问.[2][3][4][7]
+
+Sources
+[1] How to Fix Error 404 File not Found GitHub Pages https://www.youtube.com/watch?v=D6_Io-Jg_DU
+[2] GitHub Pages部署后网站无法正常访问，提示404错误如何解决？ https://ask.csdn.net/questions/8376132
+[3] How to fix HTTP 404 on Github Pages? https://stackoverflow.com/questions/11577147/how-to-fix-http-404-on-github-pages
+[4] GitHub 部署后 404 错误的原因及解决方案 https://githubup.com/38152.html
+[5] Troubleshooting 404 errors for GitHub Pages sites https://docs.github.com/en/pages/getting-started-with-github-pages/troubleshooting-404-errors-for-github-pages-sites
+[6] 在GitHub页面上托管抛出404错误 https://cloud.tencent.cn/developer/information/%E5%9C%A8GitHub%E9%A1%B5%E9%9D%A2%E4%B8%8A%E6%89%98%E7%AE%A1%E6%8A%9B%E5%87%BA404%E9%94%99%E8%AF%AF
+[7] Github pages. 404 not found, and publish again after ... https://github.com/orgs/community/discussions/33172
+[8] 排查GitHub Pages 站点的404 错误 https://docs.github.com/zh/pages/getting-started-with-github-pages/troubleshooting-404-errors-for-github-pages-sites
+[9] Solución de errores 404 en sitios de GitHub Pages https://docs.github.com/es/enterprise-cloud@latest/pages/getting-started-with-github-pages/troubleshooting-404-errors-for-github-pages-sites
+[10] Github pages显示404未找到文件 https://cloud.tencent.com/developer/information/Github%20pages%E6%98%BE%E7%A4%BA404%E6%9C%AA%E6%89%BE%E5%88%B0%E6%96%87%E4%BB%B6
+
