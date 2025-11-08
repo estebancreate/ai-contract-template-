@@ -5,24 +5,33 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Confirm directory contents before upload
+        run: |
+          echo "Listing files at root for verification:"
+          ls -al
+          echo "Recursively listing all files:"
+          find .
 
-      - name: Upload static site
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v1
         with:
           path: .
 
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+        id: deploy
+        uses: actions/deploy-pages@v1
+
+      - name: Output deployment URL
+        run: echo "Page deployed at ${{ steps.deploy.outputs.page_url }}"
