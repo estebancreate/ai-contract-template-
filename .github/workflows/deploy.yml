@@ -4,20 +4,34 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:   # allows manual trigger in Actions tab for testing
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
+      
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # 关键：强制创建包含 $9.99 标题的 index.html
+      - name: Create index.html content
+        run: |
+          echo '<!DOCTYPE html>
+          <html lang="zh">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>AI 合同销售页</title>
+          </head>
+          <body style="text-align: center; padding-top: 50px;">
+            <h1>$9.99 AI 合同销售页 (占位符)</h1>
+            <p>内容已通过 GitHub Actions 成功部署！</p>
+          </body>
+          </html>' > index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -30,5 +44,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
 
 
