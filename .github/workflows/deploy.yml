@@ -3,37 +3,32 @@ name: Deploy GitHub Pages
 on:
   push:
     branches:
-      - main  # 或你的默认分支名
+      - main
+  workflow_dispatch:   # allows manual trigger in Actions tab for testing
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 以下步骤强制创建一个简单的 index.html 覆盖仓库根目录的部署内容
-      - name: Create simple index.html with base href
-        run: |
-          echo '<!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <title>AI Contract Template</title>
-            <base href="/ai-contract-template/">
-          </head>
-          <body>
-            <h1>Welcome to AI Contract Template</h1>
-            <p>If you see this page, deployment works!</p>
-          </body>
-          </html>' > index.html
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './'
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./            # 当前目录即根目录
-          # 精确清理目标目录，避免遗留文件导致问题
-          clean: true
+        id: deployment
+        uses: actions/deploy-pages@v4
+
 
