@@ -16,7 +16,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    # 不再创建 dist 目录，直接在根目录创建 index.html
+    # 关键修复：添加 .nojekyll 文件，强制 Pages 部署原始 HTML
+    - name: Disable Jekyll processing
+      run: touch .nojekyll
+
+    # 步骤：稳健写入 index.html 到根目录
     - name: Create index.html (Final Sales Page - Root Directory)
       run: |
         # 使用 cat/EOF 稳健写入 HTML 内容
@@ -148,7 +152,9 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
-        publish_dir: . # 关键更新：指向根目录
-        force_orphan: true # 强制清理 gh-pages 分支，确保没有旧文件残留
-        commit_message: 'Deploy final sales page content (Fixed 404 - Forced Root)'
+        publish_dir: . # 确保发布根目录，包含 index.html 和 .nojekyll
+        force_orphan: true 
+        commit_message: 'Deploy final sales page content (Fixed Jekyll and Root Path)'
+
+
 
